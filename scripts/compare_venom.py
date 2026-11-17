@@ -24,7 +24,7 @@ def parse(path):
     sections, cur = {}, "goals"
     for raw in open(path):
         line = raw.strip()
-        if not line:
+        if not line or line.startswith("#"):
             continue
         m = re.match(r"^\[(.+)\]$", line)
         if m:
