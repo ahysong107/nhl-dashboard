@@ -1,0 +1,6 @@
+data/
+site/data/
+site/dates.json
+__pycache__/
+*.pyc
+.DS_Store
