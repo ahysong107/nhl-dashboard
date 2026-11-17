@@ -13,11 +13,12 @@ Model (per skater in tonight's projected lineup):
     PP part also x opponent PK xGA/60 (shrunk) x opponent penalties-taken rate (shrunk)
   P(goal) = 1 - exp(-lam);  P(2+) = 1 - exp(-lam)(1 + lam)
 
-Ali Score (same shape as Diamond Edge's HR score):
-  Baseline x0.6  = slate percentiles of goal rate/60 (35), xG/60 (25), shots/60 (15), high-danger
+Ali Score (rebalanced 2026-11-17 to lean on tonight's goal chance; the matchup is already inside it):
+  Chance x0.55   = goal chance scaled proportionally (45% = 100), not a percentile
+  Baseline x0.30 = slate percentiles of goal rate/60 (35), xG/60 (25), shots/60 (15), high-danger
                    shots/60 (10), projected TOI (15)
-  Opportunity x0.4 = matchup lift scaled proportionally (70) + PP role (30)
-  + DUE bonus (4 or 7) when season goals trail xG and the player is shooting but in a drought.
+  Opportunity x0.15 = matchup lift scaled proportionally (70) + PP role (30)
+  + DUE bonus (2 or 4) when season goals trail xG and the player is shooting but in a drought.
 
 Usage: python3 scripts/build_site_data.py YYYY-MM-DD
 """
@@ -508,7 +509,7 @@ def build(date):
             gap = (s["xg"] or 0) - (s["g"] or 0)
             due = 0
             if gap >= 1.5 and p["drought"] >= 4 and p["sog_since"] >= 8:
-                due = 7 if (gap >= 3 or p["drought"] >= 7) else 4
+                due = 4 if (gap >= 3 or p["drought"] >= 7) else 2
             flags = []
             if due:
                 flags.append("DUE")
@@ -519,7 +520,9 @@ def build(date):
             p["base"] = round(base, 1)
             p["opp_score"] = round(opp_total, 1)
             p["due_bonus"] = due
-            p["ali"] = round(min(100, 0.6 * base + 0.4 * opp_total + due), 1)
+            chance = clamp(p["p_goal"] / 0.45 * 100, 0, 100)
+            p["chance_score"] = round(chance, 1)
+            p["ali"] = round(min(100, 0.55 * chance + 0.30 * base + 0.15 * opp_total + due), 1)
             p["_flags"] = flags
         # VIPER: elite baseline + clearly favorable matchup
         for p in pool:

@@ -248,7 +248,7 @@ footer p{margin:0 0 8px;}
 
   <footer>
     <p><b>How it works.</b> Each skater's expected goals tonight = even-strength scoring rate (expected goals per 60, nudged by his finishing record and last-10 shot volume) x projected even-strength minutes, plus a power-play part using his 5-on-4 rate and projected PP minutes (PP1 or PP2 from DailyFaceoff lines). Both are adjusted for the opponent's expected goals allowed, its penalty kill, and the projected goalie's goals allowed vs. expected, then calibrated so an average lineup scores the league's real rate. Goal chance = 1 &minus; e<sup>&minus;expected goals</sup>.</p>
-    <p><b>Ali Score</b> = Baseline x0.6 (slate percentile of scoring rate, expected goals/60, shots/60, high-danger shots/60, ice time) + Opportunity x0.4 (matchup lift and PP role) + a small DUE bonus for shooters whose goals trail their expected goals during a drought. VIPER = elite baseline in a clearly soft matchup. HOT = 3+ goals in last 5. OVERPERFORMING = 3+ goals above expected; expect some cooling.</p>
+    <p><b>Ali Score</b> = Goal chance x0.55 (45% or better scores 100) + Baseline x0.30 (slate percentile of scoring rate, expected goals/60, shots/60, high-danger shots/60, ice time) + Opportunity x0.15 (matchup lift and PP role) + a small DUE bonus for shooters whose goals trail their expected goals during a drought. VIPER = elite baseline in a clearly soft matchup. HOT = 3+ goals in last 5. OVERPERFORMING = 3+ goals above expected; expect some cooling.</p>
     <p>Data: NHL game logs, MoneyPuck expected goals, DailyFaceoff lines and starting goalies (a goalie marked Projected is our guess until a team confirms). Not fit against betting markets and no sportsbook odds are used. Refreshed once a day.</p>
   </footer>
 </div>
@@ -348,9 +348,10 @@ function detailHtml(p){
     <div>
       <h4>Why the number</h4>
       ${metric("Expected goals tonight", p.lam.toFixed(2), p.lam/0.8*100, `${pct(p.p_goal)} to score, ${pct(p.p_2g)} for 2+. Power play adds ${p.lam_pp.toFixed(2)}.`)}
+      ${p.chance_score!=null?metric("Goal chance score", p.chance_score.toFixed(0), p.chance_score, `Tonight's goal chance on a 0-100 scale (45% or better = 100). Biggest part of the Ali Score.`):""}
       ${metric("Baseline", p.base.toFixed(0), p.base, `Scoring rate, xG/60, shots, high-danger chances and ice time, ranked against tonight's slate.`)}
       ${metric("Opportunity", p.opp_score.toFixed(0), p.opp_score, `Matchup ${lift>=0?"+":""}${lift.toFixed(1)}% vs average${p.pp?`, ${p.pp} role`:", no PP role"}.`)}
-      ${p.due_bonus?metric("Due bonus", "+"+p.due_bonus, p.due_bonus/7*100, `${p.drought} games without a goal on ${p.sog_since} shots while trailing his xG.`):""}
+      ${p.due_bonus?metric("Due bonus", "+"+p.due_bonus, p.due_bonus/4*100, `${p.drought} games without a goal on ${p.sog_since} shots while trailing his xG.`):""}
       <p class="note">Projected ${p.proj_toi} min (${p.proj_pp_toi} on the PP). He ${finishTxt} (x${p.finish.toFixed(2)}), shot volume trend x${p.form.toFixed(2)}.</p>
     </div>
     <div>
